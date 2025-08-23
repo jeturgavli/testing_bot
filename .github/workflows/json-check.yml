@@ -8,6 +8,10 @@ on:
     paths:
       - "cardDetails.json"
 
+permissions:             # ✅ yeh add karna zaroori hai
+  pull-requests: write   # PRs par comment karne ke liye
+  issues: write          # Issues par comment karne ke liye (optional)
+
 jobs:
   validate-json:
     runs-on: ubuntu-latest
@@ -37,7 +41,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "🚨 JSON Validation Failed:\n\n```\n" + errors + "\n```"
-            })
+            });
 
       - name: Post success comment
         if: env.has_error != 'true'
@@ -49,4 +53,4 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "✅ JSON Validation Passed! Shabaash contributor 🙌"
-            })
+            });
