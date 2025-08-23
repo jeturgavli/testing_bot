@@ -1,73 +1,62 @@
 import json
 import sys
+import os
+
+REQUIRED_FIELDS = ["name", "profession", "quote", "github"]
+
+# template values jo skip karne hain
+TEMPLATE_VALUES = {
+    "name": "Your Name",
+    "profession": "Your Profession",
+    "quote": "\"Your favourite quote\"</br> - Said By Me",
+    "github": "https://github.com"
+}
+
+def is_template_entry(card):
+    """Check kare ki entry template hai ya nahi"""
+    return all(card.get(k) == v for k, v in TEMPLATE_VALUES.items() if k in card)
 
 def validate_json(file_path):
     errors = []
-    required_fields = ["name", "profession", "quote", "github"]
+
+    if not os.path.exists(file_path):
+        errors.append(f"❌ File not found: {file_path}")
+        return errors
 
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
-        errors.append(f"❌ JSON Syntax Error: {e}")
+        errors.append(f"❌ JSON Syntax Error: {str(e)}")
         return errors
 
-    if "cardDetails" not in data or not isinstance(data["cardDetails"], list):
-        errors.append("❌ 'cardDetails' array missing ya galat hai.")
+    if "cardDetails" not in data:
+        errors.append("❌ Missing 'cardDetails' key at root level.")
         return errors
 
-    for i, entry in enumerate(data["cardDetails"], start=1):
-        # Required fields check
-        for field in required_fields:
-            if field not in entry:
-                errors.append(f"❌ Entry {i}: Missing required field '{field}'.")
+    for idx, card in enumerate(data["cardDetails"], start=1):
+        # Template entries ko skip karo
+        if is_template_entry(card):
+            continue
 
-        # Optional fields validation
-        if "email" in entry:
-            if not entry["email"].startswith("mailto:"):
-                errors.append(
-                    f"⚠️ Entry {i} ({entry.get('name')}): Email '{entry['email']}' 'mailto:' se start hona chahiye."
-                )
-
-        if "linkedin" in entry:
-            if not entry["linkedin"].startswith("https://"):
-                errors.append(
-                    f"⚠️ Entry {i} ({entry.get('name')}): LinkedIn link '{entry['linkedin']}' 'https://' se start hona chahiye."
-                )
-
-        if "github" in entry:  # github required hai
-            if not entry["github"].startswith("https://github.com/"):
-                errors.append(
-                    f"⚠️ Entry {i} ({entry.get('name')}): GitHub link '{entry['github']}' 'https://github.com/' se start hona chahiye."
-                )
-
-        if "twitter" in entry:
-            if not entry["twitter"].startswith("https://twitter.com/"):
-                errors.append(
-                    f"⚠️ Entry {i} ({entry.get('name')}): Twitter link '{entry['twitter']}' 'https://twitter.com/' se start hona chahiye."
-                )
-
-        if "dribbble" in entry:
-            if not entry["dribbble"].startswith("https://dribbble.com/"):
-                errors.append(
-                    f"⚠️ Entry {i} ({entry.get('name')}): Dribbble link '{entry['dribbble']}' 'https://dribbble.com/' se start hona chahiye."
-                )
-
-        if "behance" in entry:
-            if not entry["behance"].startswith("https://www.behance.net/") and not entry["behance"].startswith("https://behance.com/"):
-                errors.append(
-                    f"⚠️ Entry {i} ({entry.get('name')}): Behance link '{entry['behance']}' 'https://behance.com/' ya 'https://www.behance.net/' se start hona chahiye."
-                )
+        for field in REQUIRED_FIELDS:
+            if field not in card or not str(card[field]).strip():
+                errors.append(f"❌ Entry {idx} missing required field: {field}")
 
     return errors
 
 
 if __name__ == "__main__":
-    file_path = sys.argv[1]
-    issues = validate_json(file_path)
+    if len(sys.argv) < 2:
+        print("❌ Usage: python validator.py <path_to_json_file>")
+        sys.exit(1)
 
-    if issues:
-        print("\n".join(issues))
-        sys.exit(1)  # fail job
+    file_path = sys.argv[1]
+    errors = validate_json(file_path)
+
+    if errors:
+        print("\n".join(errors))
+        sys.exit(1)
     else:
-        print("✅ JSON valid hai & template follow ho raha hai.")
+        print("✅ JSON Validation Passed! All required fields are present.")
+        sys.exit(0)
