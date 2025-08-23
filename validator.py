@@ -34,14 +34,29 @@ def validate_json(file_path):
         errors.append("❌ Missing 'cardDetails' key at root level.")
         return errors
 
+    seen = set()   # track duplicates
+
     for idx, card in enumerate(data["cardDetails"], start=1):
         # Template entries ko skip karo
         if is_template_entry(card):
             continue
 
+        # Required field check
         for field in REQUIRED_FIELDS:
             if field not in card or not str(card[field]).strip():
                 errors.append(f"❌ Entry {idx} missing required field: {field}")
+
+               # Duplicate check (by Name + GitHub link)
+        fingerprint = (
+            card.get("name", "").strip().lower(),
+            card.get("github", "").strip().lower()
+        )
+        if fingerprint in seen:
+            errors.append(
+                f"❌ Duplicate entry found at index {idx} → Name: '{card.get('name')}', GitHub: {card.get('github')}"
+            )
+        else:
+            seen.add(fingerprint)
 
     return errors
 
@@ -58,5 +73,5 @@ if __name__ == "__main__":
         print("\n".join(errors))
         sys.exit(1)
     else:
-        print("✅ JSON Validation Passed! All required fields are present.")
+        print("✅ JSON Validation Passed! All required fields and no duplicates.")
         sys.exit(0)
