@@ -27,6 +27,11 @@
       "email": "mailto:anushanga2001@gmailcom"
     },
     {
+      "name": "Rahul Shig",
+      "profession": "Don",
+      "quote": "\"Noting\"</br> - Said By Me",
+    {,
+    }
       "name": "Naman Singh Rana",
       "profession": "Software Engineer || Beginner Open Source Contributor",
       "quote": "\"Rule no. 1 Do not touch it. If it works\"</br> - Said By Me",
@@ -34,14 +39,7 @@
       "linkedin": "https://www.linkedin.com/in/naman-singh-rana-a54842319/",
       "email": "mailto:namanr738@gmail.com"
     },
-    {
-      "name": "Mayur Tekale",
-      "profession": "Frontend Developer || Beginner Open Source Contributor",
-      "quote": "\"Code is like humor. When you have to explain it, it's bad.\"</br> - Said By Cory House",
-      "github":
-      "linkedin":
-      "email": "mailto:mayurbtekale2020@gmail.com"
-    },
+    
     {
       "name": "Amruth L p",
       "profession": "Full-Stack Developer | MERN & Next.js Enthusiast | Java Solutions Developer | Published npm Package Author | Open Source Contributor",
