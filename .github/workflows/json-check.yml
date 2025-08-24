@@ -1,7 +1,7 @@
 name: JSON Validator
 
 on:
-  pull_request_target:      # 👈 yeh badal do
+  pull_request_target:
     paths:
       - "cardDetails.json"
   push:
@@ -20,7 +20,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}   # 👈 forked PR ka code checkout karega
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0   # full history for forked PR
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -30,6 +31,7 @@ jobs:
       - name: Run JSON validator
         id: validate
         run: |
+          set -o pipefail
           python validator.py cardDetails.json > result.log || echo "has_error=true" >> $GITHUB_ENV
 
       - name: Post error comment
@@ -40,7 +42,7 @@ jobs:
             const fs = require('fs');
             const errors = fs.readFileSync('result.log', 'utf8');
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: "🚨 JSON Validation Failed:\n\n```\n" + errors + "\n```"
@@ -52,8 +54,8 @@ jobs:
         with:
           script: |
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
+              issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "✅ JSON Validation Passed! Shabaash contributor 🙌"
+              body: "✅ JSON Validation Passed! 🌟⭐🌟🌟🌟 🙌"
             });
